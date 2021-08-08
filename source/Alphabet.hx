@@ -1,5 +1,7 @@
 package;
 
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -36,12 +38,20 @@ class Alphabet extends FlxSpriteGroup
 	var xPosResetted:Bool = false;
 	var lastWasSpace:Bool = false;
 
+	var listOAlphabets:List<AlphaCharacter> = new List<AlphaCharacter>();
+
 	var splitWords:Array<String> = [];
 
 	var isBold:Bool = false;
 
-	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = false, typed:Bool = false)
+	var pastX:Float = 0;
+	var pastY:Float  = 0;
+
+	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = false, typed:Bool = false, shouldMove:Bool = false)
 	{
+		pastX = x;
+		pastY = y;
+
 		super(x, y);
 
 		_finalText = text;
@@ -58,7 +68,26 @@ class Alphabet extends FlxSpriteGroup
 			{
 				addText();
 			}
+
 		}
+	}
+
+	public function reType(text)
+	{
+		for (i in listOAlphabets)
+			remove(i);
+		_finalText = text;
+		this.text = text;
+
+		lastSprite = null;
+
+		updateHitbox();
+
+		listOAlphabets.clear();
+		x = pastX;
+		y = pastY;
+		
+		addText();
 	}
 
 	public function addText()
@@ -93,6 +122,7 @@ class Alphabet extends FlxSpriteGroup
 
 				// var letter:AlphaCharacter = new AlphaCharacter(30 * loopNum, 0);
 				var letter:AlphaCharacter = new AlphaCharacter(xPos, 0);
+				listOAlphabets.add(letter);
 
 				if (isBold)
 					letter.createBold(character);
@@ -178,6 +208,7 @@ class Alphabet extends FlxSpriteGroup
 
 				// var letter:AlphaCharacter = new AlphaCharacter(30 * loopNum, 0);
 				var letter:AlphaCharacter = new AlphaCharacter(xPos, 55 * yMulti);
+				listOAlphabets.add(letter);
 				letter.row = curRow;
 				if (isBold)
 				{
@@ -247,8 +278,10 @@ class AlphaCharacter extends FlxSprite
 		super(x, y);
 		var tex = Paths.getSparrowAtlas('alphabet');
 		frames = tex;
-
-		antialiasing = true;
+		if(FlxG.save.data.antialiasing)
+			{
+				antialiasing = true;
+			}
 	}
 
 	public function createBold(letter:String)

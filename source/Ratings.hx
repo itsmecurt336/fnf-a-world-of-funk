@@ -4,41 +4,38 @@ class Ratings
 {
 	public static function GenerateLetterRank(accuracy:Float) // generate a letter ranking
 	{
-		var ranking:String = "--";
-		if (FlxG.save.data.botplay)
-			ranking = "Auto";
+		var ranking:String = "N/A";
 
 		if (PlayState.misses == 0 && PlayState.bads == 0 && PlayState.shits == 0 && PlayState.goods == 0) // Marvelous (SICK) Full Combo
-			ranking = "(Marvelous Full Combo)";
+			ranking = "(MFC)";
 		else if (PlayState.misses == 0 && PlayState.bads == 0 && PlayState.shits == 0 && PlayState.goods >= 1) // Good Full Combo (Nothing but Goods & Sicks)
-			ranking = "(Good Full Combo)";
+			ranking = "(GFC)";
 		else if (PlayState.misses == 0) // Regular FC
-			ranking = "(Full Combo)";
+			ranking = "(FC)";
 		else if (PlayState.misses < 10) // Single Digit Combo Breaks
-			ranking = "(Full Pass)";
+			ranking = "(SDCB)";
 		else
-			ranking = "(Broken Combo)";
+			ranking = "(Clear)";
 
 		// WIFE TIME :)))) (based on Wife3)
-		// Changed the uhh names to fit (basis: osu!)
 
 		var wifeConditions:Array<Bool> = [
-			accuracy >= 99.99, // SS+
-			accuracy >= 99.50, // SS:
-			accuracy >= 99.25, // SS.
-			accuracy >= 99.12, // SS
-			accuracy >= 99, // S+:
-			accuracy >= 98, // S+.
-			accuracy >= 97, // S+
-			accuracy >= 96, // S:
-			accuracy >= 95, // S.
-			accuracy >= 93, // S
-			accuracy >= 90, // A:
-			accuracy >= 85, // A.
-			accuracy >= 80, // A
-			accuracy >= 70, // B
-			accuracy >= 60, // C
-			accuracy < 60 // D
+			accuracy >= 99.99, // AAAAA
+			accuracy >= 99.49, // AAAA:
+			accuracy >= 99.24, // AAAA.
+			accuracy >= 99, // AAAA
+			accuracy >= 98, // AAA:
+			accuracy >= 95, // AAA.
+			accuracy >= 90, // AAA
+			accuracy >= 85, // AA:
+			accuracy >= 80, // AA.
+			accuracy >= 75, // AA
+			accuracy >= 70, // A:
+			accuracy >= 65, // A.
+			accuracy >= 60, // A
+			accuracy >= 55, // B
+			accuracy >= 50, // C
+			accuracy < 50 // D
 		];
 
 		for (i in 0...wifeConditions.length)
@@ -49,33 +46,33 @@ class Ratings
 				switch (i)
 				{
 					case 0:
-						ranking += " SS+";
+						ranking += " X";
 					case 1:
-						ranking += " SS:";
+						ranking += " U+";
 					case 2:
-						ranking += " SS.";
+						ranking += " U";
 					case 3:
-						ranking += " SS";
+						ranking += " U-";
 					case 4:
-						ranking += " S+:";
+						ranking += " SS";
 					case 5:
-						ranking += " S+.";
-					case 6:
 						ranking += " S+";
-					case 7:
-						ranking += " S:";
-					case 8:
-						ranking += " S.";
-					case 9:
+					case 6:
 						ranking += " S";
-					case 10:
-						ranking += " A:";
-					case 11:
-						ranking += " A.";
-					case 12:
+					case 7:
+						ranking += " S-";
+					case 8:
+						ranking += " A+";
+					case 9:
 						ranking += " A";
-					case 13:
+					case 10:
+						ranking += " A-";
+					case 11:
+						ranking += " B+";
+					case 12:
 						ranking += " B";
+					case 13:
+						ranking += " B-";
 					case 14:
 						ranking += " C";
 					case 15:
@@ -86,9 +83,7 @@ class Ratings
 		}
 
 		if (accuracy == 0)
-			ranking = "--";
-		else if (FlxG.save.data.botplay)
-			ranking = "Auto";
+			ranking = "N/A";
 
 		return ranking;
 	}
@@ -107,42 +102,61 @@ class Ratings
 
 		// trace('Hit Info\nDifference: ' + noteDiff + '\nZone: ' + Conductor.safeZoneOffset * 1.5 + "\nTS: " + customTimeScale + "\nLate: " + 155 * customTimeScale);
 
-		if (FlxG.save.data.botplay)
-			return "good"; // BOT GOOD HOWOWWOOANFSAKNFKJWAR
+		if (FlxG.save.data.botplay && !PlayState.loadRep)
+			return "sick"; // FUNNY
 
-		if (noteDiff > 166 * customTimeScale) // so god damn early its a miss
-			return "miss";
-		if (noteDiff > 135 * customTimeScale) // way early
-			return "shit";
-		else if (noteDiff > 90 * customTimeScale) // early
-			return "bad";
-		else if (noteDiff > 45 * customTimeScale) // your kinda there
-			return "good";
-		else if (noteDiff < -45 * customTimeScale) // little late
-			return "good";
-		else if (noteDiff < -90 * customTimeScale) // late
-			return "bad";
-		else if (noteDiff < -135 * customTimeScale) // late as fuck
-			return "shit";
-		else if (noteDiff < -166 * customTimeScale) // so god damn late its a miss
-			return "miss";
-		return "sick";
+		var rating = checkRating(noteDiff, customTimeScale);
+
+		return rating;
+	}
+
+	public static function checkRating(ms:Float, ts:Float)
+	{
+		var rating = "sick";
+		if (ms <= 166 * ts && ms >= 135 * ts)
+			rating = "shit";
+		if (ms < 135 * ts && ms >= 115 * ts)
+			rating = "bad";
+		if (ms < 115 * ts && ms >= 76 * ts)
+			rating = "good";
+		if (ms < 76 * ts && ms >= 43 * ts)
+			rating = "sick";
+		if (ms < 43 * ts && ms >= 18 * ts)
+			rating = "perf";
+		if (ms < 18 * ts && ms >= -18 * ts)
+			rating = "marv";
+		if (ms < -43 * ts && ms >= -18 * ts)
+			rating = "perf";
+		if (ms < -76 * ts && ms >= -43 * ts)
+			rating = "sick";
+		if (ms > -115 * ts && ms <= -76 * ts)
+			rating = "good";
+		if (ms > -135 * ts && ms <= -115 * ts)
+			rating = "bad";
+		if (ms > -166 * ts && ms <= -135 * ts)
+			rating = "shit";
+		return rating;
 	}
 
 	public static function CalculateRanking(score:Int, scoreDef:Int, nps:Int, maxNPS:Int, accuracy:Float):String
 	{
-		return (FlxG.save.data.npsDisplay ? "NPS: " + nps + " (Max " + maxNPS + ")" + (!FlxG.save.data.botplay ? " | " : "") : "")
-			+ (!FlxG.save.data.botplay ? // NPS Toggle
-				"Score:"
-				+ (Conductor.safeFrames != 10 ? score + " (" + scoreDef + ")" : "" + score)
-				+ // Score
-				" | Misses:"
-				+ PlayState.misses
-				+ // Misses/Combo Breaks
-				" | Accuracy:"
-				+ (FlxG.save.data.botplay ? "N/A" : HelperFunctions.truncateFloat(accuracy, 2) + " %")
-				+ // Accuracy
-				" | "
-				+ GenerateLetterRank(accuracy) : ""); // Letter Rank
+		return (FlxG.save.data.npsDisplay ? // NPS Toggle
+			"NPS: "
+			+ nps
+			+ " (Max "
+			+ maxNPS
+			+ ")"
+			+ (!PlayStateChangeables.botPlay || PlayState.loadRep ? " | " : "") : "") + // 	NPS
+			(!PlayStateChangeables.botPlay
+				|| PlayState.loadRep ? "Score:" + (Conductor.safeFrames != 10 ? score + " (" + scoreDef + ")" : "" + score) + // Score
+					(FlxG.save.data.accuracyDisplay ? // Accuracy Toggle
+						" | Combo Breaks:"
+						+ PlayState.misses
+						+ // 	Misses/Combo Breaks
+						" | Accuracy:"
+						+ (PlayStateChangeables.botPlay && !PlayState.loadRep ? "N/A" : HelperFunctions.truncateFloat(accuracy, 2) + " %")
+						+ // 	Accuracy
+						" | "
+						+ GenerateLetterRank(accuracy) : "") : ""); // 	Letter Rank
 	}
 }
