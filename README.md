@@ -1,6 +1,6 @@
 # sagittarius-engine-fnf
 
-how many times have i mispelled sagittarius again?
+because andromeda engine was taken
 
 this is a modded version of [Kade Engine by KadeDev](https://github.com/KadeDev/Kade-Engine) made as a hobby and is an attempt to combine features of multiple fnf engines and rhythm games
 
